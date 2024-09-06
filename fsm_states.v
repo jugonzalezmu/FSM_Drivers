@@ -7,20 +7,21 @@ module fsm_states (
        output [2:0] foodValue,
        output [2:0] sleepValue,
        output [2:0] funValue,
-       output [2:0] happyValue
+       output [2:0] happyValue,
+       output [2:0] healthValue
     );
-    reg downFood  = 0;
-    reg downHeal_food = 0;
-
-    reg downSleep  = 0;
-    reg downHeal_sleep = 0;
-
-    reg downFun  = 0;
-    reg downHeal_fun = 0;
-
     reg upHappy = 0;
+
+    reg downFood  = 0;
+    reg downSleep  = 0;
+    reg downFun  = 0;
     reg downHappy  = 0;
-    reg downHeal_Happy = 0;
+    reg downHeal = 0;
+
+    reg downHeal_food = 0;
+    reg downHeal_sleep = 0;
+    reg downHeal_fun = 0;
+    reg downHeal_happy = 0;
 
 parameter freq = 50; //50 MHz
 reg [6:0] sec_count = 0; // segundos hasta 128
@@ -35,17 +36,11 @@ reg [25:0] counter = 0; //Contador de 26 bits
         end 
     end
 
-Registro_states food_register(.state(3'b000), .DownState(downFood), .stateValue(foodValue), .clk(clk), .rst(rst)); //registro comida aumentar/disminuir valor comida
-Registro_states health_FoodRegister(.state(3'b100), .DownState(downHeal_food), .clk(clk), .rst(rst)); //registro salud disminuir
-
-Registro_states sleep_register(.state(3'b001), .DownState(downSleep), .stateValue(sleepValue), .clk(clk), .rst(rst)); 
-Registro_states health_SleepRegister(.state(3'b100), .DownState(downHeal_sleep), .clk(clk), .rst(rst));
-
-Registro_states fun_register(.state(3'b010), .DownState(downFun), .stateValue(funValue), .clk(clk), .rst(rst)); 
-Registro_states health_FunRegister(.state(3'b100), .DownState(downHeal_fun), .clk(clk), .rst(rst));
-
-Registro_states happy_register(.state(3'b011), .UpState(upHappy), .DownState(downHappy), .stateValue(happyValue), .clk(clk), .rst(rst)); 
-Registro_states health_happyRegister(.state(3'b100), .DownState(downHeal_happy), .clk(clk), .rst(rst));
+Registro_states food_register(.state(3'b000), .DownState(downFood), .stateValue(foodValue), .clk(clk));
+Registro_states sleep_register(.state(3'b001), .DownState(downSleep), .stateValue(sleepValue), .clk(clk)); 
+Registro_states fun_register(.state(3'b010), .DownState(downFun), .stateValue(funValue), .clk(clk)); 
+Registro_states happy_register(.state(3'b011), .DownState(downHappy), .stateValue(happyValue), .UpState(upHappy), .clk(clk)); 
+Registro_states health_Register(.state(3'b100), .DownState(downHeal), .stateValue(healthValue), .clk(clk));
 
 parameter IDLEFOOD = 2'b00, HUNGER = 2'b01, FEED = 2'b10, STARVE = 2'b11;
 reg [1:0] food_state = IDLEFOOD;
@@ -71,6 +66,7 @@ reg [1:0] next_stateHappy = 2'b00;
     end
 
     always @(*) begin
+        downHeal <= (downHeal_happy == 1 || downHeal_fun == 1 || downHeal_sleep == 1 || downHeal_food== 1) ? 1 : 0;
         case(food_state)
             IDLEFOOD: next_stateFood <= HUNGER;
             HUNGER: next_stateFood <= (counter == 0) ? HUNGER : FEED;
@@ -107,7 +103,7 @@ reg [1:0] next_stateHappy = 2'b00;
             downHeal_fun <= 0;
             upHappy <= 0;
             downHappy  <= 0;
-            downHeal_Happy <= 0;
+            downHeal_happy <= 0;
         end else begin
             case(food_state)
                 IDLEFOOD: begin
@@ -167,22 +163,22 @@ reg [1:0] next_stateHappy = 2'b00;
                 IDLEHAPPY: begin
                     upHappy <= 0;
                     downHappy <= 0;
-                    downHeal_Happy <= 0;
+                    downHeal_happy <= 0;
                 end
                 SAD: begin
                     upHappy <= 0;
                     downHappy <= (foodValue < 3 && funValue < 3 && (sec_count == 23 || sec_count == 47 || sec_count == 69 || sec_count == 83) && counter == 0) ? 1 : 0;
-                    downHeal_Happy <= 0;
+                    downHeal_happy <= 0;
                 end
                 JOLLY: begin 
                     upHappy <= (foodValue > 3 && funValue > 3 && (sec_count == 22 || sec_count == 70) && 14< counter && counter < 19) ? 1: 0;
                     downHappy <= 0;
-                    downHeal_Happy <= 0;
+                    downHeal_happy <= 0;
                 end
                 SADNESS: begin
                     upHappy <= 0;
                     downHappy <= 0;
-                    downHeal_Happy <= (happyValue < 3 && (sec_count == 2 || sec_count == 32 || sec_count == 62) && 19 < counter && counter < 24) ? 1 : 0;
+                    downHeal_happy <= (happyValue < 3 && (sec_count == 2 || sec_count == 32 || sec_count == 62) && 19 < counter && counter < 24) ? 1 : 0;
                 end 
             endcase
         end

@@ -26,10 +26,10 @@ assign stateValue = breg[state];
 always @(posedge clk) begin
 //Función reset con valores predeterminados
 if (rst == 1) begin
-      breg[0] <= 3;
-	  breg[1] <= 1;
-	  breg[2] <= 2;
-	  breg[3] <= 2;
+      breg[0] <= 5;
+	  breg[1] <= 5;
+	  breg[2] <= 5;
+	  breg[3] <= 5;
 	  breg[4] <= 5;
 	  breg[5] <= 0;
 	  breg[6] <= 0;
@@ -46,12 +46,12 @@ if (breg[4] == 1) begin
 	  breg[7] <= 0;
     end
 if (UpState == 1) begin
-    if (breg[state]>1 && breg[state]<5) begin 
+    if (breg[state] == 1 || breg[state] == 2 || breg[state] == 3 || breg[state] == 4) begin 
 	      breg[state] <= stateValue+1;
 	   end
 	end
 if (DownState == 1) begin
-    if (breg[state]>1 && breg[state]<5) begin 
+    if (breg[state] == 2 || breg[state] == 3 || breg[state] == 4 || breg[state] == 5) begin 
 	      breg[state] <= stateValue-1;
 	   end
 	end

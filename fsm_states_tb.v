@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 `include "/home/juandavidgm/github-classroom/unal-edigital1-lab/FSM_Drivers/fsm_states.v"
 
-module Registro_states_tb;
+module fsm_states_tb;
     // Inputs
     reg clk;
     reg rst;
@@ -11,6 +11,7 @@ module Registro_states_tb;
 	wire [2:0] sleepValue;
 	wire [2:0] funValue;
 	wire [2:0] happyValue;
+	wire [2:0] healthValue;
 
 	// Instantiate the Unit Under Test (UUT)
 
@@ -20,7 +21,8 @@ module Registro_states_tb;
 		.foodValue(foodValue),
 		.sleepValue(sleepValue),
 		.funValue(funValue),
-		.happyValue(happyValue)
+		.happyValue(happyValue),
+		.healthValue(healthValue)
 	);
 
 	initial begin
@@ -31,30 +33,11 @@ module Registro_states_tb;
 		#100;// Wait 100 ns for global reset to finish
 		rst = 1;
 		#100
-
-		#100
 		$display("Comida =  %d ", foodValue) ;
 		$display("Salud  =  %d ", sleepValue) ;
 		$display("Sueño  =  %d ", funValue) ;
-		$display("Sueño  =  %d ", happyValue) ;
-
-		#100
-		$display("Comida =  %d ", foodValue) ;
-		$display("Salud  =  %d ", sleepValue) ;
-		$display("Sueño  =  %d ", funValue) ;
-		$display("Sueño  =  %d ", happyValue) ;
-
-		#100
-		$display("Comida =  %d ", foodValue) ;
-		$display("Salud  =  %d ", sleepValue) ;
-		$display("Sueño  =  %d ", funValue) ;
-		$display("Sueño  =  %d ", happyValue) ;
-		
-		#100
-		$display("Comida =  %d ", foodValue) ;
-		$display("Salud  =  %d ", sleepValue) ;
-		$display("Sueño  =  %d ", funValue) ;
-		$display("Sueño  =  %d ", happyValue) ;
+		$display("Animo  =  %d ", happyValue) ;
+		$display("Salud  =  %d ", healthValue) ;
 
 	end
 
