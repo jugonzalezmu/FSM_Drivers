@@ -5,6 +5,10 @@ module fsm_states_tb;
     // Inputs
     reg clk;
     reg rst;
+	reg feeding;
+	reg echo_sig;
+	reg light_out;
+	reg healing;
 
     // Outputs
     wire [2:0] foodValue;
@@ -18,6 +22,10 @@ module fsm_states_tb;
 	fsm_states uut (
 		.clk(clk),
 		.rst(rst),
+		.feeding(feeding),
+		.healing(healing),
+		.light_out(light_out),
+		.echo_sig(echo_sig),
 		.foodValue(foodValue),
 		.sleepValue(sleepValue),
 		.funValue(funValue),
@@ -28,17 +36,25 @@ module fsm_states_tb;
 	initial begin
 		//Initialize Inputs
 		clk = 0;
+		feeding = 0;
+		light_out = 0;
+		echo_sig = 0;
+		healing = 0;
 		rst = 0;
 		//#10000 es un segundo
 		#100;// Wait 100 ns for global reset to finish
 		rst = 1;
 		#100
-		$display("Comida =  %d ", foodValue) ;
-		$display("Salud  =  %d ", sleepValue) ;
-		$display("Sueño  =  %d ", funValue) ;
-		$display("Animo  =  %d ", happyValue) ;
-		$display("Salud  =  %d ", healthValue) ;
-
+		feeding = 1;
+		@(posedge clk);
+		@(negedge clk);
+		feeding = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
 	end
 
 	always #1 clk = ~clk;

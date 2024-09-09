@@ -6,11 +6,10 @@
 
 module display(
     input clk,
-	input rst,
-	input boton,
+	 input rst,
     output [0:6] sseg,
     output reg [2:0] an,
-	 output reg [2:0] an1,
+	 output reg [1:0] an1,
 	 output led,
 	 input [2:0] foodValue,
     input [2:0] sleepValue,
@@ -59,9 +58,8 @@ always @(posedge enable) begin
 				3'h0: begin bcd <= foodValue;   an<=3'b1110; end 
 				3'h1: begin bcd <= sleepValue;  an<=3'b1101; end 
 				3'h2: begin bcd <= funValue;    an<=3'b1011; end 
-				3'h3: begin bcd <= happyValue;  an1<=3'b110; end 
-				3'h4: begin bcd <= healthValue; an1<=3'b101; end
-				3'h5: begin bcd <= xdValue;     an1<=3'b011; end
+				3'h3: begin bcd <= happyValue;  an1<=2'b10; end 
+				3'h4: begin bcd <= healthValue; an1<=2'b01; end
 			endcase
 			count1<= count1+1;
 			if(count1==6) begin
