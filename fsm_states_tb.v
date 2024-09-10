@@ -9,7 +9,8 @@ module fsm_states_tb;
 	reg echo_sig;
 	reg light_out;
 	reg healing;
-
+    reg change_state;
+    reg test;
     // Outputs
     wire [2:0] foodValue;
 	wire [2:0] sleepValue;
@@ -26,6 +27,8 @@ module fsm_states_tb;
 		.healing(healing),
 		.light_out(light_out),
 		.echo_sig(echo_sig),
+		.change_state(change_state),
+		.test(test),
 		.foodValue(foodValue),
 		.sleepValue(sleepValue),
 		.funValue(funValue),
@@ -36,15 +39,20 @@ module fsm_states_tb;
 	initial begin
 		//Initialize Inputs
 		clk = 0;
+		rst = 0;
 		feeding = 0;
 		light_out = 0;
 		echo_sig = 0;
 		healing = 0;
-		rst = 0;
+		change_state = 0;
+		test = 0;
 		//#10000 es un segundo
-		#100;// Wait 100 ns for global reset to finish
+		#10;// Wait 100 ns for global reset to finish
 		rst = 1;
-		#100
+		test = 1;
+		@(posedge clk);
+		@(negedge clk);
+		test = 0;
 		feeding = 1;
 		@(posedge clk);
 		@(negedge clk);
@@ -55,6 +63,118 @@ module fsm_states_tb;
 		@(posedge clk);
 		@(negedge clk);
 		healing = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
+		change_state = 1;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 1;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 1;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 1;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 1;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 0;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 1;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
+		@(posedge clk);
+		@(negedge clk);
+		feeding = 1;
+		@(posedge clk);
+		@(negedge clk);
+		feeding = 0;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 1;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 0;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 1;
+		@(posedge clk);
+		@(negedge clk);
+		change_state = 0;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 1;
+		@(posedge clk);
+		@(negedge clk);
+		healing = 0;
+		@(posedge clk);
+		@(negedge clk);
+		test = 1;
+		@(posedge clk);
+		@(negedge clk);
+		test = 0;
 	end
 
 	always #1 clk = ~clk;

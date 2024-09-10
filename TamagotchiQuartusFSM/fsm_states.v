@@ -7,6 +7,8 @@ module fsm_states (
        input light_out1,
        input echo_sig1,
        input healing1,
+       input change_state1,
+       input test1,
        output [2:0] foodValue,
        output [2:0] sleepValue,
        output [2:0] funValue,
@@ -17,6 +19,8 @@ assign feeding = ~feeding1;
 assign light_out = ~light_out1;
 assign echo_sig = ~echo_sig1;
 assign healing = ~healing1;
+assign change_state = ~change_state1;
+assign test = ~test1;
 	 
 assign foodValue = value_food;
 assign sleepValue = value_sleep;
@@ -54,7 +58,10 @@ assign healthValue = value_health;
         health_state <= (rst == 0) ? IDLEHEALTH : next_stateHealth;
     end
 
+parameter FOOD2 = 3'b000, SLEEP2 = 3'b001, FUN2 = 3'b010, HAPPY2 = 3'b011 , HEALTH2 = 3'b100;
+
     always @(posedge clk) begin
+        test_mode <= (test == 1) ? ~test_mode : test_mode;
         if (rst == 0) begin
             value_food = 5;
             value_sleep = 5;
@@ -67,12 +74,21 @@ assign healthValue = value_health;
             value_fun = 0;
             value_happy = 0;
             value_health = 0;
-        end else begin
+        end else if (test_mode == 0) begin
             value_food <= (upFood == 1 && value_food < 5 && value_food > 0) ? value_food+1: (downFood == 1 && value_food < 6 && value_food > 1) ? value_food-1: value_food;
             value_sleep <= (upSleep == 1 && value_sleep < 5 && value_sleep > 0) ? value_sleep+1: (downSleep == 1 && value_sleep < 6 && value_sleep > 1) ? value_sleep-1: value_sleep;
             value_fun <= (upFun == 1 && value_fun < 5 && value_fun > 0) ? value_fun+1: (downFun == 1 && value_fun < 6 && value_fun > 1) ? value_fun-1: value_fun;
             value_happy <= (upHappy == 1 && value_happy < 5 && value_happy > 0) ? value_happy+1: (downHappy == 1 && value_happy < 6 && value_happy > 1) ? value_happy-1: value_happy;
             value_health <= (upHealth == 1 && value_health < 5 && value_health > 0) ? value_health+1: ((heal_downFood == 1 || heal_downSleep || heal_downFun || heal_downHappy) && value_health < 6 && value_health > 1) ? value_health-1: value_health;
+        end else begin
+            state <= (change_state == 1) ? (state == 4) ? 0 : state+1 : state; 
+            case(state)
+                FOOD2: value_food <= (feeding == 1 && value_food < 5 && value_food > 0) ? value_food+1 : (healing == 1 && value_food < 6 && value_food > 1) ? value_food-1 : value_food;
+                SLEEP2: value_sleep <= (feeding == 1 && value_sleep < 5 && value_sleep > 0) ? value_sleep+1 : (healing == 1 && value_sleep < 6 && value_sleep > 1) ? value_sleep-1 : value_sleep;
+                FUN2: value_fun <= (feeding == 1 && value_fun < 5 && value_fun > 0) ? value_fun+1 : (healing == 1 && value_fun < 6 && value_fun > 1) ? value_fun-1 : value_fun;
+                HAPPY2: value_happy <= (feeding == 1 && value_happy < 5 && value_happy > 0) ? value_happy+1 : (healing == 1 && value_happy < 6 && value_happy > 1) ? value_happy-1 : value_happy;
+                HEALTH2: value_health <= (feeding == 1 && value_health < 5 && value_health > 0) ? value_health+1 : (healing == 1 && value_health < 6 && value_health > 1) ? value_health-1 : value_health;
+            endcase
         end
     end
 
