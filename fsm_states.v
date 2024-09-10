@@ -9,6 +9,7 @@ module fsm_states (
        input healing,
        input change_state,
        input test,
+       output [3:0] face,
        output [2:0] foodValue,
        output [2:0] sleepValue,
        output [2:0] funValue,
@@ -53,6 +54,7 @@ assign healthValue = value_health;
     reg heal_downFun = 0;
     reg heal_downHappy = 0;
 
+    // FSM primera parte
     always @(posedge clk) begin
         food_state <= (rst == 0) ? IDLEFOOD : next_stateFood;
         sleep_state <= (rst == 0) ? IDLESLEEP : next_stateSleep;
@@ -64,27 +66,36 @@ assign healthValue = value_health;
 parameter FOOD2 = 3'b000, SLEEP2 = 3'b001, FUN2 = 3'b010, HAPPY2 = 3'b011 , HEALTH2 = 3'b100;
 
     always @(posedge clk) begin
-        test_mode <= (test == 1) ? ~test_mode : test_mode;
+        test_mode <= (test == 1) ? ~test_mode : test_mode; // se inicia modo test y se cambia si se vuelve a tener la señal
+        if (value_health == 0) begin
+            face <= 4'hb;
+        end else if (value_food < 3 || value_sleep < 3 || value_fun < 3 || value_happy < 3 || value_health < 3) begin
+            face <= 4'ha;
+        end else if (value_food == 3 || value_sleep == 3 || value_fun == 3 || value_happy == 3 || value_health == 3) begin
+            face <= 4'h1001;
+        end else begin
+            face <= 4'h1000;
+        end
         if (rst == 0) begin
             value_food = 5;
             value_sleep = 5;
             value_fun = 5;
             value_happy = 5;
             value_health = 5;
-        end else if (value_health == 1) begin
+        end else if (value_health == 1) begin // Estado de muerte
             value_food = 0;
             value_sleep = 0;
             value_fun = 0;
             value_happy = 0;
             value_health = 0;
-        end else if (test_mode == 0) begin
+        end else if (test_mode == 0) begin // se suben y bajan valores de los valores de los estados del tamagotchi, NO test_mode
             value_food <= (upFood == 1 && value_food < 5 && value_food > 0) ? value_food+1: (downFood == 1 && value_food < 6 && value_food > 1) ? value_food-1: value_food;
             value_sleep <= (upSleep == 1 && value_sleep < 5 && value_sleep > 0) ? value_sleep+1: (downSleep == 1 && value_sleep < 6 && value_sleep > 1) ? value_sleep-1: value_sleep;
             value_fun <= (upFun == 1 && value_fun < 5 && value_fun > 0) ? value_fun+1: (downFun == 1 && value_fun < 6 && value_fun > 1) ? value_fun-1: value_fun;
             value_happy <= (upHappy == 1 && value_happy < 5 && value_happy > 0) ? value_happy+1: (downHappy == 1 && value_happy < 6 && value_happy > 1) ? value_happy-1: value_happy;
             value_health <= (upHealth == 1 && value_health < 5 && value_health > 0) ? value_health+1: ((heal_downFood == 1 || heal_downSleep || heal_downFun || heal_downHappy) && value_health < 6 && value_health > 1) ? value_health-1: value_health;
-        end else begin
-            state <= (change_state == 1) ? (state == 4) ? 0 : state+1 : state; 
+        end else begin // se aumentan o decrementan valores si se tiene la señal feeding se aumenta, healing decrementa, SI test_mode
+            state <= (change_state == 1) ? (state == 4) ? 0 : state+1 : state; // se cambia el valor de estado que se quiere aumentar o decrementar
             case(state)
                 FOOD2: value_food <= (feeding == 1 && value_food < 5 && value_food > 0) ? value_food+1 : (healing == 1 && value_food < 6 && value_food > 1) ? value_food-1 : value_food;
                 SLEEP2: value_sleep <= (feeding == 1 && value_sleep < 5 && value_sleep > 0) ? value_sleep+1 : (healing == 1 && value_sleep < 6 && value_sleep > 1) ? value_sleep-1 : value_sleep;
@@ -95,8 +106,9 @@ parameter FOOD2 = 3'b000, SLEEP2 = 3'b001, FUN2 = 3'b010, HAPPY2 = 3'b011 , HEAL
         end
     end
 
-parameter freq = 50; //50000000 para fpga y 50 para testbench
-reg [6:0] sec_count = 0; // segundos hasta 128
+// contador de segundos
+parameter freq = 50; //50000000 para fpga y 50 para testbench(para probar mas facilmente)
+reg [6:0] sec_count = 0; // segundos hasta 128, pero se cuenta hasta 90
 reg [25:0] counter = 0; //Contador de 26 bits 
 
     always @(posedge clk) begin 
@@ -128,6 +140,7 @@ parameter IDLEHEALTH = 1'b0, HEAL = 1'b1;
 reg [1:0] health_state = IDLEHEALTH;
 reg [1:0] next_stateHealth = 1'b0;
 
+    // FSM segunda parte, logica de cambio de las FSMs
     always @(*) begin
         case(food_state)
             IDLEFOOD: next_stateFood <= HUNGER;
@@ -159,6 +172,7 @@ reg [1:0] next_stateHealth = 1'b0;
         endcase
     end
 
+    // FSM tercera parte, se envian las señales de cambio de valores y se analiza cumpimiento de condiciones
     always @(posedge clk) begin
         if (rst == 0) begin
             // comida señales
